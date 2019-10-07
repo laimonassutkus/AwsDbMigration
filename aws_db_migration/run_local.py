@@ -1,4 +1,5 @@
 import logging
+import os
 
 from aws_db_migration.action_enum import ActionEnum
 from aws_db_migration.exe_enum import MysqlDumpExeEnum, MysqlExeEnum
@@ -11,8 +12,17 @@ logr = logging.getLogger(__name__)
 
 class RunLocal:
     def __init__(self, event_type: ActionEnum):
-        self.s3 = S3()
         self.__event_type = event_type
+
+        key = os.environ.get('AWS_DB_MIGRATION_AWS_KEY')
+        secret = os.environ.get('AWS_DB_MIGRATION_AWS_SECRET')
+
+        if key and secret:
+            self.__key_secret_pair = (key, secret)
+        else:
+            self.__key_secret_pair = None
+
+        self.s3 = S3(key_secret=self.__key_secret_pair)
 
     def run(self):
         # Request to create a backup of a local database.
@@ -25,14 +35,14 @@ class RunLocal:
             self.s3.upload()
             # Restore cloud database from a recently uploaded file.
             logr.info('Restoring cloud database from an uploaded sql dump file...')
-            InvokeLambda(ActionEnum.RESTORE).run()
+            InvokeLambda(ActionEnum.RESTORE, key_secret=self.__key_secret_pair).run()
 
             logr.info('Success!')
         # Request to restore a local database from a file.
         elif self.__event_type == ActionEnum.RESTORE:
             # Ask lambda function to create a sql dump file from a cloud database.
             logr.info('Creating cloud database sql dump file...')
-            InvokeLambda(ActionEnum.BACKUP).run()
+            InvokeLambda(ActionEnum.BACKUP, key_secret=self.__key_secret_pair).run()
             # Download the created file from S3.
             logr.info('Downloading dump from s3...')
             self.s3.download()

@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-./build.sh -i
+./build.sh -ic
