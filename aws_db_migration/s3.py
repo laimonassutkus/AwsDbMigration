@@ -1,10 +1,11 @@
 import datetime
 import logging
 import os
+import shutil
 import boto3
 
 from typing import Tuple, Optional, List
-from aws_db_migration.mysql_action import SQL_FILE_DUMP_PATH
+from aws_db_migration.mysql_action import SQL_FILE_DUMP_PATH, SQL_FILE_DUMP_DIR
 
 logr = logging.getLogger(__name__)
 
@@ -48,6 +49,16 @@ class S3:
 
         logr.info(f'Latest key: {latest_key}.')
         logr.info(f'Latest timestamp: {latest_timestamp}.')
+
+        # Clear directory from previous dump files.
+        try:
+            shutil.rmtree(SQL_FILE_DUMP_DIR)
+        except FileNotFoundError:
+            pass
+
+        # Create a directory for dump file if it does not exist.
+        if not os.path.exists(SQL_FILE_DUMP_DIR):
+            os.makedirs(SQL_FILE_DUMP_DIR)
 
         self.__resource.meta.client.download_file(self.__bucket, latest_key, SQL_FILE_DUMP_PATH)
 
