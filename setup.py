@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='aws_db_migration',
-    version='1.4.3',
+    version='1.4.4',
     packages=find_packages(),
     description=(
         'Management project which can run locally and on AWS Lambda function. '

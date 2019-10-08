@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import subprocess
 
 from typing import Union
@@ -9,7 +10,8 @@ from aws_db_migration.exe_enum import MysqlDumpExeEnum, MysqlExeEnum
 
 logr = logging.getLogger(__name__)
 
-SQL_FILE_DUMP_PATH = '/tmp/aws-db-migration/mysql/dump.sql'
+SQL_FILE_DUMP_DIR = '/tmp/aws-db-migration/mysql/'
+SQL_FILE_DUMP_PATH = f'{SQL_FILE_DUMP_DIR}dump.sql'
 
 
 def execute_mysql_action(mysql_exe: Union[MysqlExeEnum, MysqlDumpExeEnum]):
@@ -22,6 +24,16 @@ def execute_mysql_action(mysql_exe: Union[MysqlExeEnum, MysqlDumpExeEnum]):
         action = ActionEnum.RESTORE
     elif isinstance(mysql_exe, MysqlDumpExeEnum):
         action = ActionEnum.BACKUP
+
+        # Clear directory from previous dump files.
+        try:
+            shutil.rmtree(SQL_FILE_DUMP_DIR)
+        except FileNotFoundError:
+            pass
+
+        # Create a directory for dump file if it does not exist.
+        if not os.path.exists(SQL_FILE_DUMP_DIR):
+            os.makedirs(SQL_FILE_DUMP_DIR)
     else:
         raise ValueError('Unsupported mysql execute enum type.')
 
