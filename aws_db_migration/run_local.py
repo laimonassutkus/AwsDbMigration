@@ -35,14 +35,26 @@ class RunLocal:
             self.s3.upload()
             # Restore cloud database from a recently uploaded file.
             logr.info('Restoring cloud database from an uploaded sql dump file...')
-            InvokeLambda(ActionEnum.RESTORE, key_secret=self.__key_secret_pair).run()
+            status = InvokeLambda(ActionEnum.RESTORE, key_secret=self.__key_secret_pair).run()
 
-            logr.info('Success!')
+            if not status:
+                logr.error('Invocation failed.')
+                return
+            else:
+                logr.info('Success!')
+
         # Request to restore a local database from a file.
         elif self.__event_type == ActionEnum.RESTORE:
             # Ask lambda function to create a sql dump file from a cloud database.
             logr.info('Creating cloud database sql dump file...')
-            InvokeLambda(ActionEnum.BACKUP, key_secret=self.__key_secret_pair).run()
+            status = InvokeLambda(ActionEnum.BACKUP, key_secret=self.__key_secret_pair).run()
+
+            if not status:
+                logr.error('Invocation failed.')
+                return
+            else:
+                logr.info('Success!')
+
             # Download the created file from S3.
             logr.info('Downloading dump from s3...')
             self.s3.download()

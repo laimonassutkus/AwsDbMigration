@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -22,10 +23,12 @@ class InvokeLambda:
         else:
             self.__client = boto3.client('lambda')
 
-    def run(self):
-        self.__invoke(self.action)
+    def run(self) -> bool:
+        return self.__invoke(self.action)
 
-    def __invoke(self, action: ActionEnum):
+    def __invoke(self, action: ActionEnum) -> bool:
+        success = True
+
         response = self.__client.invoke(
             FunctionName=os.environ['AWS_LAMBDA_MIGRATION_NAME'],
             InvocationType='RequestResponse',
@@ -35,4 +38,11 @@ class InvokeLambda:
             }).encode()
         )
 
-        logr.info(response)
+        if response.get('FunctionError'):
+            success = False
+            logr.error(f'Lambda function threw an error. Error type: {response["FunctionError"]}.')
+
+        log_result = base64.b64decode(response['LogResult']).decode()
+        logr.info(log_result)
+
+        return success
