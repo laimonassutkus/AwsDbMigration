@@ -22,6 +22,9 @@ def execute_mysql_action(mysql_exe: Union[MysqlExeEnum, MysqlDumpExeEnum]):
     """
     if isinstance(mysql_exe, MysqlExeEnum):
         action = ActionEnum.RESTORE
+
+        if not os.path.isfile(SQL_FILE_DUMP_PATH):
+            raise ValueError('Can not initiate restore action. Sql dump file is missing.')
     elif isinstance(mysql_exe, MysqlDumpExeEnum):
         action = ActionEnum.BACKUP
 
