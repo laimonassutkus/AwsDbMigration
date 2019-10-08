@@ -37,7 +37,7 @@ def execute_mysql_action(mysql_exe: Union[MysqlExeEnum, MysqlDumpExeEnum]):
     ]
 
     try:
-        output = subprocess.check_output([f'{root}/mysql_exe.sh', args], stderr=subprocess.STDOUT)
+        output = subprocess.check_output([f'{root}/mysql_exe.sh', *args], stderr=subprocess.STDOUT)
         logr.info(output.decode())
     except subprocess.CalledProcessError as ex:
         logr.error(ex.output.decode())
