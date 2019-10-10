@@ -5,12 +5,12 @@ import shutil
 import boto3
 
 from typing import Tuple, Optional, List
-from aws_db_migration.mysql_action import SQL_FILE_DUMP_PATH, SQL_FILE_DUMP_DIR
+from aws_db_migration.invoke_mysql import InvokeMysql
 
 logr = logging.getLogger(__name__)
 
 
-class S3:
+class InvokeS3:
     def __init__(self, bucket: Optional[str] = None, key_secret: Optional[Tuple[str, str]] = None):
         self.__bucket = bucket or os.environ['AWS_DB_MIGRATION_BACKUPS_S3']
         self.__key_secret = key_secret
@@ -25,7 +25,7 @@ class S3:
             self.__resource = boto3.resource('s3')
 
     def upload(self):
-        self.__resource.meta.client.upload_file(SQL_FILE_DUMP_PATH, self.__bucket, self.__gen_name())
+        self.__resource.meta.client.upload_file(InvokeMysql.PATH_TO_SQL_FILE, self.__bucket, self.__gen_name())
 
     def download(self) -> None:
         """
@@ -50,17 +50,9 @@ class S3:
         logr.info(f'Latest key: {latest_key}.')
         logr.info(f'Latest timestamp: {latest_timestamp}.')
 
-        # Clear directory from previous dump files.
-        try:
-            shutil.rmtree(SQL_FILE_DUMP_DIR)
-        except FileNotFoundError:
-            pass
+        self.__clear_and_create()
 
-        # Create a directory for dump file if it does not exist.
-        if not os.path.exists(SQL_FILE_DUMP_DIR):
-            os.makedirs(SQL_FILE_DUMP_DIR)
-
-        self.__resource.meta.client.download_file(self.__bucket, latest_key, SQL_FILE_DUMP_PATH)
+        self.__resource.meta.client.download_file(self.__bucket, latest_key, InvokeMysql.PATH_TO_SQL_FILE)
 
     @staticmethod
     def __convert(keys: List[str]) -> List[Tuple[str, int]]:
@@ -91,3 +83,15 @@ class S3:
         """
         now = int(datetime.datetime.now().timestamp())
         return f'dump_{now}.sql'
+
+    @staticmethod
+    def __clear_and_create():
+        # Clear directory from previous dump files.
+        try:
+            shutil.rmtree(InvokeMysql.PATH_TO_SQL_DIR)
+        except FileNotFoundError:
+            pass
+
+        # Create a directory for dump file if it does not exist.
+        if not os.path.exists(InvokeMysql.PATH_TO_SQL_DIR):
+            os.makedirs(InvokeMysql.PATH_TO_SQL_DIR)

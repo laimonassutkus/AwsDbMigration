@@ -24,9 +24,6 @@ class InvokeLambda:
             self.__client = boto3.client('lambda')
 
     def run(self) -> bool:
-        return self.__invoke(self.action)
-
-    def __invoke(self, action: ActionEnum) -> bool:
         success = True
 
         response = self.__client.invoke(
@@ -34,7 +31,7 @@ class InvokeLambda:
             InvocationType='RequestResponse',
             LogType='Tail',
             Payload=json.dumps({
-                'type': action.name
+                'type': self.action.name
             }).encode()
         )
 
