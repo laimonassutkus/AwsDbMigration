@@ -34,7 +34,7 @@ has chosen Lambda to keep it light-weight.
 - Mysql server installed.
 - Mysql client installed.
 - Database set up.
-- Install this project with:
+- This project installed with:
 ```bash
 pip install aws-db-migration
 ```
@@ -52,7 +52,7 @@ refer to _.env.example_ file).
 Note, this project must be deployed as a Lambda function and have access to your cloud database.
 
 Note, that database credentials can be provided either with a _DatabaseCredentials_ class
-or through environment variables (refer to _.env.example file).
+or through environment variables (refer to _.env.example_ file).
 
 #### Migration to cloud
 ```python
@@ -84,4 +84,20 @@ credentials = DatabaseCredentials(
 )
 
 RunLocal(credentials).from_cloud()
+```
+
+#### Adding post/pre triggers
+```python
+from aws_db_migration.run_local import RunLocal
+from aws_db_migration.database_credentials import DatabaseCredentials
+
+def f1():
+    print('Pre-download!!!')
+    
+def f2():
+    print('Post-post!!!')
+
+runner = RunLocal(DatabaseCredentials())
+runner.pre_download = f1
+runner.post_download = f2
 ```
