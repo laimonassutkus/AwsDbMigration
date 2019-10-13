@@ -1,13 +1,21 @@
 from setuptools import setup, find_packages
 
+with open('README.md') as readme_file:
+    README = readme_file.read()
+
+with open('HISTORY.md') as history_file:
+    HISTORY = history_file.read()
+
 setup(
     name='aws_db_migration',
-    version='2.0.1',
+    version='2.0.3',
     packages=find_packages(),
     description=(
         'Management project which can run locally and on AWS Lambda function. '
         'Project aims to make database migrations from/to cloud easy.'
     ),
+    long_description=README,
+    long_description_content_type="text/markdown",
     include_package_data=True,
     install_requires=[
         'boto3',
