@@ -5,24 +5,23 @@ import shutil
 import boto3
 
 from typing import Tuple, Optional, List
+
+from aws_db_migration.aws_credentials import AwsCredentials
 from aws_db_migration.invoke_mysql import InvokeMysql
 
 logr = logging.getLogger(__name__)
 
 
 class InvokeS3:
-    def __init__(self, bucket: Optional[str] = None, key_secret: Optional[Tuple[str, str]] = None):
-        self.__bucket = bucket or os.environ['AWS_DB_MIGRATION_BACKUPS_S3']
-        self.__key_secret = key_secret
+    def __init__(self, aws_credentials: AwsCredentials, bucket_name: Optional[str] = None):
+        self.__bucket = bucket_name or os.environ['AWS_DB_MIGRATION_BACKUPS_S3']
 
-        if key_secret:
-            self.__resource = boto3.resource(
-                's3',
-                aws_access_key_id=key_secret[0],
-                aws_secret_access_key=key_secret[1]
-            )
-        else:
-            self.__resource = boto3.resource('s3')
+        self.__resource = boto3.resource(
+            's3',
+            region_name=aws_credentials.region,
+            aws_access_key_id=aws_credentials.access_key,
+            aws_secret_access_key=aws_credentials.secret_key
+        )
 
     def upload(self):
         self.__resource.meta.client.upload_file(InvokeMysql.PATH_TO_SQL_FILE, self.__bucket, self.__gen_name())

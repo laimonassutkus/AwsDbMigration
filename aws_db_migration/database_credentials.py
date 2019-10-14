@@ -12,17 +12,8 @@ class DatabaseCredentials:
             host: Optional[str] = None,
             port: Optional[str] = None
     ):
-        self.username = username
-        self.username = self.username or os.environ.get('AWS_DB_MIGRATION_USERNAME')
-
-        self.password = password
-        self.password = self.password or os.environ.get('AWS_DB_MIGRATION_PASSWORD')
-
-        self.database_name = database_name
-        self.database_name = self.database_name or os.environ.get('AWS_DB_MIGRATION_DATABASE')
-
-        self.host = host
-        self.host = self.host or os.environ('AWS_DB_MIGRATION_HOST')
-
-        self.port = port
-        self.port = self.port or os.environ.get('AWS_DB_MIGRATION_PORT')
+        self.username = username or os.environ.get('AWS_DB_MIGRATION_USERNAME')
+        self.password = password or os.environ.get('AWS_DB_MIGRATION_PASSWORD')
+        self.database_name = database_name or os.environ.get('AWS_DB_MIGRATION_DATABASE')
+        self.host = host or os.environ('AWS_DB_MIGRATION_HOST')
+        self.port = port or os.environ.get('AWS_DB_MIGRATION_PORT')

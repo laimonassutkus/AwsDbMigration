@@ -1,5 +1,8 @@
 # Release history
 
+#### 3.0.0
+Refactor the way aws credentials and parameters are provided.
+
 #### 2.0.4
 Add example on how to add triggers.
 

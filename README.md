@@ -58,8 +58,9 @@ or through environment variables (refer to _.env.example_ file).
 ```python
 from aws_db_migration.run_local import RunLocal
 from aws_db_migration.database_credentials import DatabaseCredentials
+from aws_db_migration.aws_credentials import AwsCredentials
 
-credentials = DatabaseCredentials(
+db_credentials = DatabaseCredentials(
     username='username',
     password='password',
     database_name='database',
@@ -67,15 +68,18 @@ credentials = DatabaseCredentials(
     port='3306'
 )
 
-RunLocal(credentials).to_cloud()
+aws_credentials = AwsCredentials()
+
+RunLocal(aws_credentials, db_credentials).to_cloud()
 ```
 
 #### Migration from cloud
 ```python
 from aws_db_migration.run_local import RunLocal
 from aws_db_migration.database_credentials import DatabaseCredentials
+from aws_db_migration.aws_credentials import AwsCredentials
 
-credentials = DatabaseCredentials(
+db_credentials = DatabaseCredentials(
     username='username',
     password='password',
     database_name='database',
@@ -83,21 +87,24 @@ credentials = DatabaseCredentials(
     port='3306'
 )
 
-RunLocal(credentials).from_cloud()
+aws_credentials = AwsCredentials()
+
+RunLocal(aws_credentials, db_credentials).from_cloud()
 ```
 
 #### Adding post/pre triggers
 ```python
 from aws_db_migration.run_local import RunLocal
 from aws_db_migration.database_credentials import DatabaseCredentials
+from aws_db_migration.aws_credentials import AwsCredentials
 
 def f1():
     print('Pre-download!!!')
     
 def f2():
-    print('Post-post!!!')
+    print('Post-download!!!')
 
-runner = RunLocal(DatabaseCredentials())
+runner = RunLocal(AwsCredentials(), DatabaseCredentials())
 runner.pre_download = f1
 runner.post_download = f2
 ```

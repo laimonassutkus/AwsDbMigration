@@ -1,8 +1,8 @@
 import logging
-import os
 
 from typing import Callable, Optional
 from aws_db_migration.action_enum import ActionEnum
+from aws_db_migration.aws_credentials import AwsCredentials
 from aws_db_migration.database_credentials import DatabaseCredentials
 from aws_db_migration.invoke_lambda import InvokeLambda
 from aws_db_migration.invoke_mysql import InvokeMysql
@@ -12,18 +12,18 @@ logr = logging.getLogger(__name__)
 
 
 class RunLocal:
-    def __init__(self, local_database_credentials: DatabaseCredentials):
-        key = os.environ.get('AWS_DB_MIGRATION_AWS_KEY')
-        secret = os.environ.get('AWS_DB_MIGRATION_AWS_SECRET')
-
+    def __init__(
+            self,
+            aws_credentials: AwsCredentials,
+            local_database_credentials: DatabaseCredentials,
+            backups_bucket: Optional[str] = None,
+            lambda_name: Optional[str] = None
+    ):
+        self.__aws_credentials = aws_credentials
         self.__database_credentials = local_database_credentials
+        self.__lambda_name = lambda_name
 
-        if key and secret:
-            self.__key_secret_pair = (key, secret)
-        else:
-            self.__key_secret_pair = None
-
-        self.s3 = InvokeS3(key_secret=self.__key_secret_pair)
+        self.s3 = InvokeS3(aws_credentials=aws_credentials, bucket_name=backups_bucket)
 
         # Callbacks to call before/after dumping a local database.
         self.pre_dump: Optional[Callable] = None
@@ -65,7 +65,7 @@ class RunLocal:
         # Restore cloud database from a recently uploaded file.
         if self.pre_restore_invoke: self.pre_restore_invoke()
         logr.info('Restoring cloud database from an uploaded sql dump file...')
-        status = InvokeLambda(ActionEnum.RESTORE, key_secret=self.__key_secret_pair).run()
+        status = InvokeLambda(self.__aws_credentials, ActionEnum.RESTORE, self.__lambda_name).run()
         assert status
         if self.post_restore_invoke: self.post_restore_invoke()
 
@@ -73,7 +73,7 @@ class RunLocal:
         # Ask lambda function to create a sql dump file from a cloud database.
         if self.pre_dump_invoke: self.pre_dump_invoke()
         logr.info('Creating cloud database sql dump file...')
-        status = InvokeLambda(ActionEnum.BACKUP, key_secret=self.__key_secret_pair).run()
+        status = InvokeLambda(self.__aws_credentials, ActionEnum.BACKUP, self.__lambda_name).run()
         assert status
         if self.post_dump_invoke: self.post_dump_invoke()
 

@@ -4,30 +4,31 @@ import logging
 import os
 import boto3
 
-from typing import Optional, Tuple
+from typing import Optional
 from aws_db_migration.action_enum import ActionEnum
+from aws_db_migration.aws_credentials import AwsCredentials
 
 logr = logging.getLogger(__name__)
 
 
 class InvokeLambda:
-    def __init__(self, event_type: ActionEnum, key_secret: Optional[Tuple[str, str]] = None):
+    def __init__(self, aws_credentials: AwsCredentials, event_type: ActionEnum, lambda_name: Optional[str] = None):
+        self.__lambda_name = lambda_name or os.environ['AWS_LAMBDA_MIGRATION_NAME']
+
         self.action = event_type
 
-        if key_secret:
-            self.__client = boto3.client(
-                'lambda',
-                aws_access_key_id=key_secret[0],
-                aws_secret_access_key=key_secret[1]
-            )
-        else:
-            self.__client = boto3.client('lambda')
+        self.__client = boto3.client(
+            'lambda',
+            region_name=aws_credentials.region,
+            aws_access_key_id=aws_credentials.access_key,
+            aws_secret_access_key=aws_credentials.secret_key
+        )
 
     def run(self) -> bool:
         success = True
 
         response = self.__client.invoke(
-            FunctionName=os.environ['AWS_LAMBDA_MIGRATION_NAME'],
+            FunctionName=self.__lambda_name,
             InvocationType='RequestResponse',
             LogType='Tail',
             Payload=json.dumps({

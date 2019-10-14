@@ -1,6 +1,7 @@
 import logging
 
 from aws_db_migration.action_enum import ActionEnum
+from aws_db_migration.aws_credentials import AwsCredentials
 from aws_db_migration.database_credentials import DatabaseCredentials
 from aws_db_migration.invoke_mysql import InvokeMysql
 from aws_db_migration.invoke_s3 import InvokeS3
@@ -12,15 +13,14 @@ class RunLambda:
     def __init__(self, event, context):
         self.event = event
         self.context = context
-        self.s3 = InvokeS3()
+        self.s3 = InvokeS3(aws_credentials=AwsCredentials())
 
         self.__event_type = ActionEnum[event['type']]
-        self.__database_credentials = DatabaseCredentials()
 
     def run(self):
         if self.__event_type == ActionEnum.BACKUP:
             # Create a cloud database dump file...
-            InvokeMysql(self.__database_credentials, ActionEnum.BACKUP, True).run()
+            InvokeMysql(DatabaseCredentials(), ActionEnum.BACKUP, True).run()
 
             # ...and upload it to S3.
             self.s3.upload()
@@ -28,6 +28,6 @@ class RunLambda:
             # Download a database dump file from s3...
             self.s3.download()
             # ...and restore the could database from it.
-            InvokeMysql(self.__database_credentials, ActionEnum.RESTORE, True).run()
+            InvokeMysql(DatabaseCredentials(), ActionEnum.RESTORE, True).run()
         else:
             raise ValueError('Unsupported event type.')
