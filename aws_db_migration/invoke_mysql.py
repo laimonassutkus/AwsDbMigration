@@ -38,7 +38,7 @@ class InvokeMysql:
         """
         if self.action_type == ActionEnum.RESTORE:
             self.__assert_file()
-        elif self.action_type == ActionEnum.RESTORE:
+        elif self.action_type == ActionEnum.BACKUP:
             self.__clear_and_create()
         else:
             raise ValueError('Unsupported mysql execute enum type.')

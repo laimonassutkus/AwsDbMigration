@@ -1,5 +1,8 @@
 # Release history
 
+#### 3.0.1
+Critical bug (when backing up a database) fix.
+
 #### 3.0.0
 Refactor the way aws credentials and parameters are provided.
 
