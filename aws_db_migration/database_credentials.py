@@ -15,5 +15,5 @@ class DatabaseCredentials:
         self.username = username or os.environ.get('AWS_DB_MIGRATION_USERNAME')
         self.password = password or os.environ.get('AWS_DB_MIGRATION_PASSWORD')
         self.database_name = database_name or os.environ.get('AWS_DB_MIGRATION_DATABASE')
-        self.host = host or os.environ('AWS_DB_MIGRATION_HOST')
+        self.host = host or os.environ.get('AWS_DB_MIGRATION_HOST')
         self.port = port or os.environ.get('AWS_DB_MIGRATION_PORT')

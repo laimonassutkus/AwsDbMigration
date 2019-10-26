@@ -1,5 +1,8 @@
 # Release history
 
+#### 3.0.2
+Fixed environment bug.
+
 #### 3.0.1
 Critical bug (when backing up a database) fix.
 
