@@ -1,5 +1,8 @@
 # Release history
 
+#### 3.0.3
+Using absolute paths to call amazon-linux-mysql(dump) libraries.
+
 #### 3.0.2
 Fixed environment bug.
 

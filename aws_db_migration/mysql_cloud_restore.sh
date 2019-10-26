@@ -9,5 +9,7 @@ HOST=$4;
 PORT=$5;
 DUMP_PATH=$6
 
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
 echo "Using mysql to load a backup file."
-./amazon-linux-mysql -u"$USERNAME" -p"$PASSWORD" -h"$HOST" -P"$PORT" "$DATABASE" < "$DUMP_PATH"
+${SCRIPTPATH}/amazon-linux-mysql -u"$USERNAME" -p"$PASSWORD" -h"$HOST" -P"$PORT" "$DATABASE" < "$DUMP_PATH"

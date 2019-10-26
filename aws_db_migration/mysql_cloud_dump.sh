@@ -9,5 +9,7 @@ HOST=$4;
 PORT=$5;
 DUMP_PATH=$6
 
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
 echo "Using mysqldump to create a backup file."
-./amazon-linux-mysqldump -u"$USERNAME" -p"$PASSWORD" -h"$HOST" -P"$PORT" "$DATABASE" > "$DUMP_PATH"
+${SCRIPTPATH}/amazon-linux-mysqldump -u"$USERNAME" -p"$PASSWORD" -h"$HOST" -P"$PORT" "$DATABASE" > "$DUMP_PATH"
