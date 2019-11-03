@@ -1,5 +1,8 @@
 # Release history
 
+#### 3.1.0
+Add ability to select database revision.
+
 #### 3.0.3
 Using absolute paths to call amazon-linux-mysql(dump) libraries.
 

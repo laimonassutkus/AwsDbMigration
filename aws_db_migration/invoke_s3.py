@@ -26,7 +26,7 @@ class InvokeS3:
     def upload(self):
         self.__resource.meta.client.upload_file(InvokeMysql.PATH_TO_SQL_FILE, self.__bucket, self.__gen_name())
 
-    def download(self) -> None:
+    def download(self, revision: int = 0) -> None:
         """
         Downloads latest mysql dump from S3.
 
@@ -44,7 +44,12 @@ class InvokeS3:
         if len(keys_with_times) == 0:
             raise ValueError('No object found that follow appropriate naming conventions.')
 
-        latest_key, latest_timestamp = max(keys_with_times, key=lambda item: item[1])
+        keys_with_times = sorted(keys_with_times, key=lambda item: item[1], reverse=True)
+
+        try:
+            latest_key, latest_timestamp = keys_with_times[revision]
+        except IndexError:
+            raise ValueError('Revision does not exist.')
 
         logr.info(f'Latest key: {latest_key}.')
         logr.info(f'Latest timestamp: {latest_timestamp}.')

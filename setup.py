@@ -8,8 +8,8 @@ with open('HISTORY.md') as history_file:
 
 setup(
     name='aws_db_migration',
-    version='3.0.3',
-    packages=find_packages(),
+    version='3.1.0',
+    packages=find_packages(exclude=('test', 'venv')),
     description=(
         'Management project which can run locally and on AWS Lambda function. '
         'Project aims to make database migrations from/to cloud easy.'

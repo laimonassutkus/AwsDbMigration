@@ -69,18 +69,23 @@ class RunLocal:
         assert status
         if self.post_restore_invoke: self.post_restore_invoke()
 
-    def from_cloud(self):
-        # Ask lambda function to create a sql dump file from a cloud database.
-        if self.pre_dump_invoke: self.pre_dump_invoke()
-        logr.info('Creating cloud database sql dump file...')
-        status = InvokeLambda(self.__aws_credentials, ActionEnum.BACKUP, self.__lambda_name).run()
-        assert status
-        if self.post_dump_invoke: self.post_dump_invoke()
+    def from_cloud(self, revision: Optional[int] = None):
+        if revision is None:
+            # Ask lambda function to create a sql dump file from a cloud database.
+            if self.pre_dump_invoke: self.pre_dump_invoke()
+            logr.info('Creating cloud database sql dump file...')
+            status = InvokeLambda(self.__aws_credentials, ActionEnum.BACKUP, self.__lambda_name).run()
+            assert status
+            if self.post_dump_invoke: self.post_dump_invoke()
+            revision = 0
+
+        assert isinstance(revision, int), 'Revision must of integer type.'
+        assert revision >= 0, 'Revision can not be negative.'
 
         # Download the created file from S3.
         if self.pre_download: self.pre_download()
         logr.info('Downloading dump from s3...')
-        self.s3.download()
+        self.s3.download(revision=revision)
         if self.post_download: self.post_download()
 
         # Restore the local database from a recently downloaded file.
