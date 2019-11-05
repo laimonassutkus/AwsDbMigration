@@ -4,3 +4,6 @@ include *.in
 recursive-include aws_db_migration *.py
 recursive-include aws_db_migration *.sh
 recursive-include aws_db_migration *.example
+
+prune venv
+prune test

@@ -1,5 +1,8 @@
 # Release history
 
+#### 3.1.1
+Dump databases in single transactions to avoid data corruptions.
+
 #### 3.1.0
 Add ability to select database revision.
 

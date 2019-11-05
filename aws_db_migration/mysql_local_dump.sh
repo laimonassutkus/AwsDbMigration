@@ -10,4 +10,4 @@ PORT=$5;
 DUMP_PATH=$6
 
 echo "Using mysqldump to create a backup file."
-mysqldump -u"$USERNAME" -p"$PASSWORD" -h"$HOST" -P"$PORT" "$DATABASE" > "$DUMP_PATH"
+mysqldump -u"$USERNAME" -p"$PASSWORD" -h"$HOST" -P"$PORT" "$DATABASE" --single-transaction --routines --triggers > "$DUMP_PATH"
